@@ -1,19 +1,21 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-function Particle({ x, y, color, angle, id }) {
-  const distance = 50 + Math.random() * 50
+function Particle({ x, y, color, angle, id, size }) {
+  const distance = 80 + Math.random() * 80 // Larger burst radius
   const endX = x + Math.cos(angle) * distance
   const endY = y + Math.sin(angle) * distance
 
   return (
     <motion.div
-      className="absolute w-4 h-4 rounded-full pointer-events-none"
+      className="absolute rounded-full pointer-events-none"
       style={{
         left: x,
         top: y,
+        width: size,
+        height: size,
         background: color,
-        boxShadow: `0 0 10px ${color}`,
+        boxShadow: `0 0 20px ${color}, 0 0 40px ${color}`, // More intense glow
       }}
       initial={{ scale: 1, opacity: 1, x: 0, y: 0 }}
       animate={{
@@ -23,7 +25,7 @@ function Particle({ x, y, color, angle, id }) {
         y: endY - y,
       }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.8, ease: 'easeOut' }}
     />
   )
 }
@@ -37,11 +39,12 @@ function Ripple({ x, y, color }) {
         top: y,
         borderColor: color,
         transform: 'translate(-50%, -50%)',
+        boxShadow: `0 0 30px ${color}`, // Add glow to ripple
       }}
       initial={{ width: 0, height: 0, opacity: 1 }}
-      animate={{ width: 200, height: 200, opacity: 0 }}
+      animate={{ width: 250, height: 250, opacity: 0 }} // Larger ripple
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
     />
   )
 }
@@ -82,10 +85,11 @@ export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐', the
       const id = Date.now() + touchIndex
       const color = colors[Math.floor(Math.random() * colors.length)]
 
-      // Add particles
-      const particleCount = 8
+      // Add firework particles - more dramatic burst
+      const particleCount = 16 // More particles for firework effect
       for (let i = 0; i < particleCount; i++) {
         const angle = (i / particleCount) * Math.PI * 2
+        const size = 4 + Math.random() * 8 // Varied particle sizes
         newEffects.push({
           type: 'particle',
           id: `${id}-particle-${i}`,
@@ -93,6 +97,23 @@ export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐', the
           y,
           color,
           angle,
+          size,
+        })
+      }
+
+      // Add secondary burst for extra firework effect
+      const secondaryCount = 8
+      for (let i = 0; i < secondaryCount; i++) {
+        const angle = ((i + 0.5) / secondaryCount) * Math.PI * 2 // Offset angles
+        const size = 3 + Math.random() * 5
+        newEffects.push({
+          type: 'particle',
+          id: `${id}-particle-secondary-${i}`,
+          x,
+          y,
+          color: color,
+          angle,
+          size,
         })
       }
 
@@ -132,7 +153,7 @@ export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐', the
       setEffects(prev => prev.filter(effect =>
         !newEffects.some(ne => ne.id === effect.id)
       ))
-    }, 800)
+    }, 1000) // Longer cleanup time for firework effect
   }, [colors, onTouch, themeEmoji, themeId, onTrackTouch])
 
   return (

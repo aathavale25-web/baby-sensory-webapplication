@@ -29,50 +29,50 @@ function getAnimationsForTheme(themeId, colors, seed) {
   switch (themeId) {
     case 'ocean':
       return [
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={20} seed={seed} />,
-        <FishAnimation key={`${themeId}-fish`} count={12} seed={seed} colors={colors} />,
+        <FishAnimation key={`${themeId}-fish`} count={20} seed={seed} colors={colors} />, // More fish
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={8} seed={seed} />, // Fewer bubbles
         <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
       ]
     case 'space':
       return [
-        <StarField key={`${themeId}-stars`} count={40} seed={seed} colors={colors} />,
-        <PlanetAnimation key={`${themeId}-planets`} count={6} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={25} seed={seed} />,
+        <StarField key={`${themeId}-stars`} count={35} seed={seed} colors={colors} />,
+        <PlanetAnimation key={`${themeId}-planets`} count={10} seed={seed} />, // More planets
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} />, // Fewer sparkles
       ]
     case 'garden':
       return [
-        <FlowerAnimation key={`${themeId}-flowers`} count={12} seed={seed} />,
-        <ButterflyAnimation key={`${themeId}-butterflies`} count={10} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
+        <FlowerAnimation key={`${themeId}-flowers`} count={18} seed={seed} />, // More flowers
+        <ButterflyAnimation key={`${themeId}-butterflies`} count={15} seed={seed} />, // More butterflies
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
       ]
     case 'rainbow':
       return [
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={20} seed={seed} />, // More shapes
         <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={30} seed={seed} />,
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={10} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} />, // Fewer sparkles
       ]
     case 'animals':
       return [
-        <AnimalAnimation key={`${themeId}-animals`} count={10} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={10} seed={seed} />,
+        <AnimalAnimation key={`${themeId}-animals`} count={18} seed={seed} />, // More animals
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} />, // Fewer bubbles
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
       ]
     case 'shapes':
       return [
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={15} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={20} seed={seed} />,
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={8} seed={seed} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={22} seed={seed} />, // More shapes
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={5} seed={seed} />, // Fewer bubbles
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={10} seed={seed} />, // Fewer sparkles
       ]
     case 'clouds':
       return [
-        <CloudAnimation key={`${themeId}-clouds`} count={8} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={10} seed={seed} />,
+        <CloudAnimation key={`${themeId}-clouds`} count={15} seed={seed} />, // More clouds
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} />, // Fewer bubbles
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
       ]
     default:
       return [
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={15} seed={seed} />,
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={10} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={12} seed={seed} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={15} seed={seed} />,
       ]
   }
 }
