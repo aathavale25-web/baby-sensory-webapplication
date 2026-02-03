@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Supabase Test</title>
+  <script type="module">
+    // Test if Supabase connection works
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    const supabaseUrl = 'https://lljqyvtudhjvoalmnouv.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsanF5dnR1ZGhqdm9hbG1ub3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDM5MjUsImV4cCI6MjA4NTcxOTkyNX0.xe8eFsnPEczLClNqfT70Jixcpm8HhC9PrEQhXepoKWo'
+
+    console.log('Testing Supabase connection...')
+
+    const supabase = createClient(supabaseUrl, supabaseKey)
+
+    // Test read
+    const { data, error } = await supabase
+      .from('sessions')
+      .select('id, theme')
+      .limit(3)
+
+    if (error) {
+      console.error('❌ Supabase error:', error)
+    } else {
+      console.log('✅ Supabase connected! Found sessions:', data)
+    }
+
+    // Test write
+    const testSession = {
+      id: 'browser-test-' + Date.now(),
+      timestamp: Date.now(),
+      theme: 'Browser Test',
+      duration: 10,
+      touches: 5,
+      color_counts: { '#FF0000': 1 },
+      object_counts: { '⭐': 1 },
+      nursery_rhymes_played: [],
+      streaks: 0,
+      milestones: [],
+      completed_full: false,
+    }
+
+    const { data: inserted, error: insertError } = await supabase
+      .from('sessions')
+      .insert(testSession)
+      .select()
+
+    if (insertError) {
+      console.error('❌ Insert error:', insertError)
+    } else {
+      console.log('✅ Test session created:', inserted)
+    }
+  </script>
+</head>
+<body>
+  <h1>Supabase Connection Test</h1>
+  <p>Check the console (F12) for results</p>
+</body>
+</html>
