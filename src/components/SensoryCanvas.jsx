@@ -13,7 +13,7 @@ import ColorWave, {
 import TouchFeedback from './TouchFeedback'
 import ThemeSelector from './ThemeSelector'
 import NurseryRhymePlayer, { MusicButton } from './NurseryRhymePlayer'
-import Scoreboard from './Scoreboard'
+import Scoreboard, { MiniScoreboard } from './Scoreboard'
 import { useDailyContent } from '../hooks/useDailyContent'
 import { useAudio } from '../hooks/useAudio'
 import { useNurseryRhymes } from '../hooks/useNurseryRhymes'
@@ -219,6 +219,18 @@ export default function SensoryCanvas() {
       style={{ background: theme.background }}
       onClick={() => setShowControls(true)}
     >
+      {/* Mini scoreboard in top right during session */}
+      <AnimatePresence>
+        {isSessionActive && (
+          <MiniScoreboard
+            totalTouches={totalTouches}
+            currentStreak={currentStreak}
+            bestStreak={bestStreak}
+            onClick={() => setShowScoreboard(true)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Theme info banner */}
       <AnimatePresence>
         {showInfo && (

@@ -4,14 +4,15 @@ import { useState, useCallback, useRef } from 'react'
 const MILESTONES = [10, 25, 50, 100, 150, 200, 250, 300, 400, 500]
 
 // Map theme IDs to object types for tracking
-const THEME_TO_OBJECT_TYPE = {
-  ocean: 'bubble',
-  space: 'star',
-  garden: 'flower',
-  rainbow: 'sparkle',
-  animals: 'animal',
-  shapes: 'shape',
-  clouds: 'cloud',
+// Each theme can have multiple object types that are floating
+const THEME_TO_OBJECT_TYPES = {
+  ocean: ['bubble', 'fish', 'wave'],
+  space: ['star', 'planet', 'sparkle'],
+  garden: ['flower', 'butterfly', 'sparkle'],
+  rainbow: ['wave', 'sparkle', 'shape'],
+  animals: ['animal', 'sparkle', 'bubble'],
+  shapes: ['shape', 'sparkle', 'bubble'],
+  clouds: ['cloud', 'sparkle', 'bubble'],
 }
 
 // Emoji icons for each object type
@@ -23,6 +24,10 @@ export const OBJECT_TYPE_EMOJIS = {
   animal: '🐱',
   shape: '🔷',
   cloud: '☁️',
+  fish: '🐟',
+  wave: '🌊',
+  planet: '🪐',
+  butterfly: '🦋',
   unknown: '👆',
 }
 
@@ -83,7 +88,9 @@ export function useScoreboard() {
   const trackTouch = useCallback((themeId, color) => {
     if (!isTracking) return
 
-    const objectType = THEME_TO_OBJECT_TYPE[themeId] || 'unknown'
+    // Get possible object types for this theme and randomly select one
+    const possibleTypes = THEME_TO_OBJECT_TYPES[themeId] || ['unknown']
+    const objectType = possibleTypes[Math.floor(Math.random() * possibleTypes.length)]
     const colorName = getColorName(color)
 
     // Update total touches

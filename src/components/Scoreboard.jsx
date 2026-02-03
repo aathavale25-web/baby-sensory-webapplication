@@ -234,6 +234,49 @@ function SessionSummary({ summary, onClose }) {
   )
 }
 
+// Mini scoreboard that shows in top right during session
+export function MiniScoreboard({ totalTouches, currentStreak, bestStreak, onClick }) {
+  return (
+    <motion.div
+      className="fixed top-4 right-4 z-40 bg-gradient-to-br from-purple-500/90 to-pink-500/90 backdrop-blur-sm rounded-2xl p-4 shadow-2xl cursor-pointer border-2 border-white/30"
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 100 }}
+      onClick={onClick}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      <div className="text-white text-center">
+        <div className="text-xs uppercase tracking-wide opacity-80 mb-1">Touches</div>
+        <motion.div
+          className="text-4xl font-bold mb-2"
+          key={totalTouches}
+          animate={{ scale: [1.2, 1] }}
+          transition={{ duration: 0.2 }}
+        >
+          {totalTouches}
+        </motion.div>
+        <div className="flex gap-3 text-sm">
+          <div className="flex items-center gap-1">
+            <span>⚡</span>
+            <motion.span
+              key={currentStreak}
+              animate={{ scale: [1.3, 1] }}
+              transition={{ duration: 0.2 }}
+            >
+              {currentStreak}
+            </motion.span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>🔥</span>
+            <span>{bestStreak}</span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 // Main Scoreboard component
 export default function Scoreboard({
   isOpen,
