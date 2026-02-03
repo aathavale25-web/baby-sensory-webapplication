@@ -65,7 +65,7 @@ function Emoji({ x, y, emoji }) {
   )
 }
 
-export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐' }) {
+export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐', themeId, onTrackTouch }) {
   const [effects, setEffects] = useState([])
 
   const handleInteraction = useCallback((e) => {
@@ -113,6 +113,11 @@ export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐' }) {
         y,
         emoji: themeEmoji,
       })
+
+      // Track touch for scoreboard
+      if (onTrackTouch && themeId) {
+        onTrackTouch(themeId, color)
+      }
     })
 
     setEffects(prev => [...prev, ...newEffects])
@@ -128,7 +133,7 @@ export default function TouchFeedback({ colors, onTouch, themeEmoji = '⭐' }) {
         !newEffects.some(ne => ne.id === effect.id)
       ))
     }, 800)
-  }, [colors, onTouch, themeEmoji])
+  }, [colors, onTouch, themeEmoji, themeId, onTrackTouch])
 
   return (
     <div

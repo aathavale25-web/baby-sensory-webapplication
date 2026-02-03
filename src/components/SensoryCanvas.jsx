@@ -13,9 +13,11 @@ import ColorWave, {
 import TouchFeedback from './TouchFeedback'
 import ThemeSelector from './ThemeSelector'
 import NurseryRhymePlayer, { MusicButton } from './NurseryRhymePlayer'
+import Scoreboard from './Scoreboard'
 import { useDailyContent } from '../hooks/useDailyContent'
 import { useAudio } from '../hooks/useAudio'
 import { useNurseryRhymes } from '../hooks/useNurseryRhymes'
+import { useScoreboard } from '../hooks/useScoreboard'
 
 // Session duration in milliseconds (20 minutes)
 const SESSION_DURATION = 20 * 60 * 1000
@@ -79,9 +81,25 @@ export default function SensoryCanvas() {
   const [selectedTheme, setSelectedTheme] = useState(null)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
+  const [showScoreboard, setShowScoreboard] = useState(false)
+  const [showSessionSummary, setShowSessionSummary] = useState(false)
+  const [sessionSummary, setSessionSummary] = useState(null)
   const { theme, colors, sounds, seed, dateString, isOverridden } = useDailyContent(null, selectedTheme)
   const { playRandomSound, initAudio, muted, toggleMute } = useAudio()
   const { isPlaying: isMusicPlaying } = useNurseryRhymes()
+  const {
+    totalTouches,
+    objectCounts,
+    colorCounts,
+    currentStreak,
+    bestStreak,
+    milestone,
+    trackTouch,
+    resetScoreboard,
+    startTracking,
+    stopTracking,
+    getSessionSummary,
+  } = useScoreboard()
 
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [sessionTime, setSessionTime] = useState(0)
@@ -89,6 +107,11 @@ export default function SensoryCanvas() {
   const [showControls, setShowControls] = useState(true)
   const [animationSeed, setAnimationSeed] = useState(seed)
   const [showInfo, setShowInfo] = useState(true)
+
+  // Update animation seed when theme changes to force animation refresh
+  useEffect(() => {
+    setAnimationSeed(prev => prev + 1)
+  }, [theme.id])
 
   // Get current animations based on theme
   const animations = getAnimationsForTheme(theme.id, colors, animationSeed)
@@ -101,6 +124,11 @@ export default function SensoryCanvas() {
       setSessionTime(prev => {
         if (prev >= SESSION_DURATION) {
           setIsSessionActive(false)
+          stopTracking()
+          // Show session summary
+          const summary = getSessionSummary()
+          setSessionSummary(summary)
+          setShowSessionSummary(true)
           return 0
         }
         return prev + 1000
@@ -108,7 +136,7 @@ export default function SensoryCanvas() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isSessionActive])
+  }, [isSessionActive, stopTracking, getSessionSummary])
 
   // Animation variation during session
   useEffect(() => {
@@ -167,11 +195,15 @@ export default function SensoryCanvas() {
     setIsSessionActive(true)
     setSessionTime(0)
     setShowInfo(false)
-  }, [initAudio])
+    // Reset and start scoreboard tracking
+    resetScoreboard()
+    startTracking()
+  }, [initAudio, resetScoreboard, startTracking])
 
   const pauseSession = useCallback(() => {
     setIsSessionActive(false)
-  }, [])
+    stopTracking()
+  }, [stopTracking])
 
   const formatTime = (ms) => {
     const minutes = Math.floor(ms / 60000)
@@ -228,6 +260,8 @@ export default function SensoryCanvas() {
         colors={colors}
         onTouch={handleTouch}
         themeEmoji={theme.emoji}
+        themeId={theme.id}
+        onTrackTouch={trackTouch}
       />
 
       {/* Controls */}
@@ -272,6 +306,15 @@ export default function SensoryCanvas() {
                 onClick={() => setShowMusicPlayer(true)}
                 isActive={isMusicPlaying}
               />
+
+              {/* Scoreboard button */}
+              <button
+                onClick={() => setShowScoreboard(true)}
+                className="w-12 h-12 rounded-full bg-gradient-to-r from-yellow-400 to-orange-400 text-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform border-2 border-white/50"
+                title="View Scoreboard"
+              >
+                🏆
+              </button>
 
               {/* Play/Pause button */}
               <button
@@ -335,6 +378,21 @@ export default function SensoryCanvas() {
       <NurseryRhymePlayer
         isOpen={showMusicPlayer}
         onClose={() => setShowMusicPlayer(false)}
+      />
+
+      {/* Scoreboard Modal */}
+      <Scoreboard
+        isOpen={showScoreboard}
+        onClose={() => setShowScoreboard(false)}
+        totalTouches={totalTouches}
+        objectCounts={objectCounts}
+        colorCounts={colorCounts}
+        currentStreak={currentStreak}
+        bestStreak={bestStreak}
+        milestone={milestone}
+        showSummary={showSessionSummary}
+        sessionSummary={sessionSummary}
+        onCloseSummary={() => setShowSessionSummary(false)}
       />
     </div>
   )
