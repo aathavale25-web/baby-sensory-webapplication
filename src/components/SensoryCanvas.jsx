@@ -21,8 +21,7 @@ import { useScoreboard } from '../hooks/useScoreboard'
 import { logSession } from '../utils/sessionLogger'
 
 // Session duration in milliseconds (20 minutes)
-// TESTING: Set to 10 seconds for quick testing, change back to 20 * 60 * 1000 for production
-const SESSION_DURATION = 10 * 1000 // 10 seconds for testing
+const SESSION_DURATION = 20 * 60 * 1000
 
 // Animation change interval in milliseconds (30 seconds)
 const ANIMATION_CHANGE_INTERVAL = 30 * 1000
@@ -222,7 +221,31 @@ export default function SensoryCanvas() {
   const pauseSession = useCallback(() => {
     setIsSessionActive(false)
     stopTracking()
-  }, [stopTracking])
+
+    // Log session when manually stopped
+    const summary = getSessionSummary()
+
+    // Only log if there was actual activity (at least 1 touch)
+    if (summary.totalTouches > 0) {
+      logSession({
+        theme: theme.name,
+        duration: Math.floor(sessionTime / 1000), // Actual duration played
+        touches: summary.totalTouches,
+        colorCounts: summary.colorCounts,
+        objectCounts: summary.objectCounts,
+        nurseryRhymesPlayed: summary.nurseryRhymesPlayed,
+        streaks: summary.bestStreak,
+        milestones: summary.milestonesHit,
+        completedFull: false, // Manually stopped, not completed
+      }).catch(error => {
+        console.error('Failed to log session:', error)
+      })
+    }
+
+    // Show session summary
+    setSessionSummary(summary)
+    setShowSessionSummary(true)
+  }, [stopTracking, getSessionSummary, theme.name, sessionTime])
 
   const formatTime = (ms) => {
     const minutes = Math.floor(ms / 60000)
