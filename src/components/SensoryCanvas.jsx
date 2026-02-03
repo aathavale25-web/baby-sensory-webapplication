@@ -11,8 +11,11 @@ import ColorWave, {
   FlowerAnimation,
 } from './ColorWave'
 import TouchFeedback from './TouchFeedback'
+import ThemeSelector from './ThemeSelector'
+import NurseryRhymePlayer, { MusicButton } from './NurseryRhymePlayer'
 import { useDailyContent } from '../hooks/useDailyContent'
 import { useAudio } from '../hooks/useAudio'
+import { useNurseryRhymes } from '../hooks/useNurseryRhymes'
 
 // Session duration in milliseconds (20 minutes)
 const SESSION_DURATION = 20 * 60 * 1000
@@ -73,8 +76,12 @@ function getAnimationsForTheme(themeId, colors, seed) {
 }
 
 export default function SensoryCanvas() {
-  const { theme, colors, sounds, seed, dateString } = useDailyContent()
+  const [selectedTheme, setSelectedTheme] = useState(null)
+  const [showThemeSelector, setShowThemeSelector] = useState(false)
+  const [showMusicPlayer, setShowMusicPlayer] = useState(false)
+  const { theme, colors, sounds, seed, dateString, isOverridden } = useDailyContent(null, selectedTheme)
   const { playRandomSound, initAudio, muted, toggleMute } = useAudio()
+  const { isPlaying: isMusicPlaying } = useNurseryRhymes()
 
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [sessionTime, setSessionTime] = useState(0)
@@ -191,7 +198,9 @@ export default function SensoryCanvas() {
           >
             <div className="text-2xl mb-1">{theme.emoji}</div>
             <div className="text-lg font-bold">{theme.name}</div>
-            <div className="text-sm opacity-80">{dateString}</div>
+            <div className="text-sm opacity-80">
+              {isOverridden ? 'Custom Theme' : dateString}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -249,6 +258,21 @@ export default function SensoryCanvas() {
 
             {/* Control buttons */}
             <div className="flex justify-center items-center gap-4">
+              {/* Theme selector button */}
+              <button
+                onClick={() => setShowThemeSelector(true)}
+                className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 text-2xl flex items-center justify-center shadow-lg active:scale-95 transition-transform border-2 border-white/50"
+                title="Change Theme"
+              >
+                🎨
+              </button>
+
+              {/* Music/Nursery Rhymes button */}
+              <MusicButton
+                onClick={() => setShowMusicPlayer(true)}
+                isActive={isMusicPlaying}
+              />
+
               {/* Play/Pause button */}
               <button
                 onClick={isSessionActive ? pauseSession : startSession}
@@ -298,6 +322,20 @@ export default function SensoryCanvas() {
           Tap for controls
         </motion.div>
       )}
+
+      {/* Theme Selector Modal */}
+      <ThemeSelector
+        isOpen={showThemeSelector}
+        onClose={() => setShowThemeSelector(false)}
+        onSelectTheme={setSelectedTheme}
+        currentThemeId={theme.id}
+      />
+
+      {/* Nursery Rhyme Player Modal */}
+      <NurseryRhymePlayer
+        isOpen={showMusicPlayer}
+        onClose={() => setShowMusicPlayer(false)}
+      />
     </div>
   )
 }

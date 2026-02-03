@@ -29,16 +29,24 @@ function shuffleWithSeed(array, seed) {
   return shuffled
 }
 
-export function useDailyContent(customDate = null) {
+export function useDailyContent(customDate = null, overrideTheme = null) {
   const content = useMemo(() => {
     const date = customDate || new Date()
     const seed = getDateSeed(date)
 
-    // Get day index (0-6) based on days since epoch modulo 7
-    const daysSinceEpoch = Math.floor(date.getTime() / (1000 * 60 * 60 * 24))
-    const themeIndex = daysSinceEpoch % dailyThemes.length
+    // Use override theme if provided, otherwise use daily theme
+    let theme
+    let themeIndex
 
-    const theme = dailyThemes[themeIndex]
+    if (overrideTheme) {
+      theme = overrideTheme
+      themeIndex = dailyThemes.findIndex(t => t.id === overrideTheme.id)
+    } else {
+      // Get day index (0-6) based on days since epoch modulo 7
+      const daysSinceEpoch = Math.floor(date.getTime() / (1000 * 60 * 60 * 24))
+      themeIndex = daysSinceEpoch % dailyThemes.length
+      theme = dailyThemes[themeIndex]
+    }
 
     // Shuffle colors and animations for variety within the theme
     const shuffledColors = shuffleWithSeed(theme.colors, seed)
@@ -57,8 +65,9 @@ export function useDailyContent(customDate = null) {
         month: 'long',
         day: 'numeric'
       }),
+      isOverridden: !!overrideTheme,
     }
-  }, [customDate])
+  }, [customDate, overrideTheme])
 
   return content
 }
