@@ -15,34 +15,43 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
  * Converts camelCase to snake_case for database compatibility
  */
 export async function saveSessionToSupabase(session) {
+  console.log('🔵 saveSessionToSupabase called with session:', session.id)
+
   try {
+    const payload = {
+      id: session.id,
+      timestamp: session.timestamp,
+      theme: session.theme,
+      duration: session.duration,
+      touches: session.touches,
+      color_counts: session.colorCounts,
+      object_counts: session.objectCounts,
+      nursery_rhymes_played: session.nurseryRhymesPlayed,
+      streaks: session.streaks,
+      milestones: session.milestones,
+      completed_full: session.completedFull,
+    }
+
+    console.log('🔵 Inserting to Supabase with payload:', payload)
+
     const { data, error } = await supabase
       .from('sessions')
-      .insert({
-        id: session.id,
-        timestamp: session.timestamp,
-        theme: session.theme,
-        duration: session.duration,
-        touches: session.touches,
-        color_counts: session.colorCounts,
-        object_counts: session.objectCounts,
-        nursery_rhymes_played: session.nurseryRhymesPlayed,
-        streaks: session.streaks,
-        milestones: session.milestones,
-        completed_full: session.completedFull,
-      })
+      .insert(payload)
       .select()
       .single()
 
     if (error) {
-      console.error('Error saving to Supabase:', error)
+      console.error('❌ Supabase insert error:', error)
+      console.error('❌ Error details:', JSON.stringify(error, null, 2))
       throw error
     }
 
     console.log('✅ Session saved to Supabase:', session.id)
+    console.log('✅ Supabase response:', data)
     return data
   } catch (error) {
-    console.error('Failed to save session to Supabase:', error.message)
+    console.error('❌ Failed to save session to Supabase:', error.message)
+    console.error('❌ Full error:', error)
     // Don't throw - we still want local storage to succeed
     return null
   }
