@@ -18,6 +18,7 @@ import { useDailyContent } from '../hooks/useDailyContent'
 import { useAudio } from '../hooks/useAudio'
 import { useNurseryRhymes } from '../hooks/useNurseryRhymes'
 import { useScoreboard } from '../hooks/useScoreboard'
+import { logSession } from '../utils/sessionLogger'
 
 // Session duration in milliseconds (20 minutes)
 const SESSION_DURATION = 20 * 60 * 1000
@@ -95,6 +96,7 @@ export default function SensoryCanvas() {
     bestStreak,
     milestone,
     trackTouch,
+    trackNurseryRhyme,
     resetScoreboard,
     startTracking,
     stopTracking,
@@ -129,6 +131,22 @@ export default function SensoryCanvas() {
           const summary = getSessionSummary()
           setSessionSummary(summary)
           setShowSessionSummary(true)
+
+          // Log session to analytics
+          logSession({
+            theme: theme.name,
+            duration: Math.floor(SESSION_DURATION / 1000),
+            touches: summary.totalTouches,
+            colorCounts: summary.colorCounts,
+            objectCounts: summary.objectCounts,
+            nurseryRhymesPlayed: summary.nurseryRhymesPlayed,
+            streaks: summary.bestStreak,
+            milestones: summary.milestonesHit,
+            completedFull: true,
+          }).catch(error => {
+            console.error('Failed to log session:', error)
+          })
+
           return 0
         }
         return prev + 1000
@@ -136,7 +154,7 @@ export default function SensoryCanvas() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isSessionActive, stopTracking, getSessionSummary])
+  }, [isSessionActive, stopTracking, getSessionSummary, theme.name])
 
   // Animation variation during session
   useEffect(() => {

@@ -80,6 +80,8 @@ export function useScoreboard() {
   const [lastObjectType, setLastObjectType] = useState(null)
   const [milestone, setMilestone] = useState(null)
   const [isTracking, setIsTracking] = useState(false)
+  const [nurseryRhymesPlayed, setNurseryRhymesPlayed] = useState([])
+  const [milestonesHit, setMilestonesHit] = useState([])
 
   // Use ref to track if we should update best streak
   const streakRef = useRef(0)
@@ -99,6 +101,7 @@ export function useScoreboard() {
       // Check for milestone
       if (MILESTONES.includes(newTotal)) {
         setMilestone(newTotal)
+        setMilestonesHit(prevMilestones => [...prevMilestones, newTotal])
         // Clear milestone after animation
         setTimeout(() => setMilestone(null), 3000)
       }
@@ -138,6 +141,12 @@ export function useScoreboard() {
     setLastObjectType(objectType)
   }, [isTracking, lastObjectType])
 
+  // Track nursery rhyme played
+  const trackNurseryRhyme = useCallback((rhymeName) => {
+    if (!isTracking) return
+    setNurseryRhymesPlayed(prev => [...prev, rhymeName])
+  }, [isTracking])
+
   // Reset the scoreboard
   const resetScoreboard = useCallback(() => {
     setTotalTouches(0)
@@ -147,6 +156,8 @@ export function useScoreboard() {
     setBestStreak(0)
     setLastObjectType(null)
     setMilestone(null)
+    setNurseryRhymesPlayed([])
+    setMilestonesHit([])
     streakRef.current = 0
   }, [])
 
@@ -189,8 +200,10 @@ export function useScoreboard() {
       bestStreak,
       mostTouchedType,
       mostTouchedColor,
+      nurseryRhymesPlayed,
+      milestonesHit,
     }
-  }, [totalTouches, objectCounts, colorCounts, bestStreak])
+  }, [totalTouches, objectCounts, colorCounts, bestStreak, nurseryRhymesPlayed, milestonesHit])
 
   return {
     // State
@@ -201,8 +214,11 @@ export function useScoreboard() {
     bestStreak,
     milestone,
     isTracking,
+    nurseryRhymesPlayed,
+    milestonesHit,
     // Actions
     trackTouch,
+    trackNurseryRhyme,
     resetScoreboard,
     startTracking,
     stopTracking,
