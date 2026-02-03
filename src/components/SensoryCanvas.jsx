@@ -21,7 +21,8 @@ import { useScoreboard } from '../hooks/useScoreboard'
 import { logSession } from '../utils/sessionLogger'
 
 // Session duration in milliseconds (20 minutes)
-const SESSION_DURATION = 20 * 60 * 1000
+// TESTING: Set to 10 seconds for quick testing, change back to 20 * 60 * 1000 for production
+const SESSION_DURATION = 10 * 1000 // 10 seconds for testing
 
 // Animation change interval in milliseconds (30 seconds)
 const ANIMATION_CHANGE_INTERVAL = 30 * 1000
