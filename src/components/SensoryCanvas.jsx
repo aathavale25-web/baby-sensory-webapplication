@@ -29,50 +29,50 @@ function getAnimationsForTheme(themeId, colors, seed) {
   switch (themeId) {
     case 'ocean':
       return [
-        <BubbleAnimation key="bubbles" colors={colors} count={20} seed={seed} />,
-        <FishAnimation key="fish" count={12} seed={seed} colors={colors} />,
-        <ColorWave key="waves" colors={colors} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={20} seed={seed} />,
+        <FishAnimation key={`${themeId}-fish`} count={12} seed={seed} colors={colors} />,
+        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
       ]
     case 'space':
       return [
-        <StarField key="stars" count={40} seed={seed} colors={colors} />,
-        <PlanetAnimation key="planets" count={6} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={25} seed={seed} />,
+        <StarField key={`${themeId}-stars`} count={40} seed={seed} colors={colors} />,
+        <PlanetAnimation key={`${themeId}-planets`} count={6} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={25} seed={seed} />,
       ]
     case 'garden':
       return [
-        <FlowerAnimation key="flowers" count={12} seed={seed} />,
-        <ButterflyAnimation key="butterflies" count={10} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={15} seed={seed} />,
+        <FlowerAnimation key={`${themeId}-flowers`} count={12} seed={seed} />,
+        <ButterflyAnimation key={`${themeId}-butterflies`} count={10} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
       ]
     case 'rainbow':
       return [
-        <ColorWave key="waves" colors={colors} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={30} seed={seed} />,
-        <ShapeAnimation key="shapes" colors={colors} count={10} seed={seed} />,
+        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={30} seed={seed} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={10} seed={seed} />,
       ]
     case 'animals':
       return [
-        <AnimalAnimation key="animals" count={10} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={15} seed={seed} />,
-        <BubbleAnimation key="bubbles" colors={colors} count={10} seed={seed} />,
+        <AnimalAnimation key={`${themeId}-animals`} count={10} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={10} seed={seed} />,
       ]
     case 'shapes':
       return [
-        <ShapeAnimation key="shapes" colors={colors} count={15} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={20} seed={seed} />,
-        <BubbleAnimation key="bubbles" colors={colors} count={8} seed={seed} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={15} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={20} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={8} seed={seed} />,
       ]
     case 'clouds':
       return [
-        <CloudAnimation key="clouds" count={8} seed={seed} />,
-        <SparkleAnimation key="sparkles" colors={colors} count={15} seed={seed} />,
-        <BubbleAnimation key="bubbles" colors={colors} count={10} seed={seed} />,
+        <CloudAnimation key={`${themeId}-clouds`} count={8} seed={seed} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={15} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={10} seed={seed} />,
       ]
     default:
       return [
-        <BubbleAnimation key="bubbles" colors={colors} count={15} seed={seed} />,
-        <ShapeAnimation key="shapes" colors={colors} count={10} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={15} seed={seed} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={10} seed={seed} />,
       ]
   }
 }
