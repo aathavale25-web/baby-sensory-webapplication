@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple Test</title>
+</head>
+<body>
+  <h1>Simple Console Test</h1>
+  <p>Check console (F12)</p>
+
+  <script>
+    console.log('🟢 Step 1: JavaScript is running!')
+    console.log('🟢 Step 2: Console is working!')
+
+    // Test if fetch works
+    fetch('https://lljqyvtudhjvoalmnouv.supabase.co/rest/v1/sessions?limit=1', {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsanF5dnR1ZGhqdm9hbG1ub3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDM5MjUsImV4cCI6MjA4NTcxOTkyNX0.xe8eFsnPEczLClNqfT70Jixcpm8HhC9PrEQhXepoKWo',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxsanF5dnR1ZGhqdm9hbG1ub3V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxNDM5MjUsImV4cCI6MjA4NTcxOTkyNX0.xe8eFsnPEczLClNqfT70Jixcpm8HhC9PrEQhXepoKWo'
+      }
+    })
+    .then(response => {
+      console.log('🟢 Step 3: Fetch completed, status:', response.status)
+      return response.json()
+    })
+    .then(data => {
+      console.log('🟢 Step 4: Supabase connected! Data:', data)
+      alert('Success! Check console for details')
+    })
+    .catch(error => {
+      console.error('❌ Error:', error)
+      alert('Error! Check console for details')
+    })
+  </script>
+</body>
+</html>
