@@ -1,5 +1,6 @@
 // High contrast color palettes optimized for infant vision
 export const colorPalettes = {
+  contrast: ['#000000', '#FFFFFF', '#FF0000', '#FFFF00', '#0000FF'], // High contrast for 4-6 months
   ocean: ['#0066FF', '#00CCFF', '#FFFFFF', '#00FF88', '#004488'],
   space: ['#FFFFFF', '#FFFF00', '#FF00FF', '#00FFFF', '#FF8800'],
   garden: ['#FF4488', '#44FF44', '#FFFF00', '#FF8844', '#FFFFFF'],
@@ -11,6 +12,16 @@ export const colorPalettes = {
 
 // Theme configurations for each day
 export const dailyThemes = [
+  {
+    id: 'contrast',
+    name: 'Contrast World',
+    background: '#FFFFFF', // Pure white or can alternate with black
+    colors: colorPalettes.contrast,
+    animations: ['shapes'], // Simple shapes only
+    sounds: ['chime', 'ding', 'pop'],
+    emoji: '⚫',
+    description: 'High contrast shapes for developing vision (4-6 months)',
+  },
   {
     id: 'ocean',
     name: 'Ocean Day',

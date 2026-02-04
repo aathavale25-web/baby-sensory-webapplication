@@ -14,11 +14,13 @@ import TouchFeedback from './TouchFeedback'
 import ThemeSelector from './ThemeSelector'
 import NurseryRhymePlayer, { MusicButton } from './NurseryRhymePlayer'
 import Scoreboard, { MiniScoreboard } from './Scoreboard'
+import SettingsPanel, { SettingsButton } from './SettingsPanel'
 import { useDailyContent } from '../hooks/useDailyContent'
 import { useAudio } from '../hooks/useAudio'
 import { useNurseryRhymes } from '../hooks/useNurseryRhymes'
 import { useScoreboard } from '../hooks/useScoreboard'
 import { logSession } from '../utils/sessionLogger'
+import { useBabyProfile } from '../contexts/BabyProfileContext'
 
 // Session duration in milliseconds (20 minutes)
 const SESSION_DURATION = 20 * 60 * 1000
@@ -26,66 +28,85 @@ const SESSION_DURATION = 20 * 60 * 1000
 // Animation change interval in milliseconds (30 seconds)
 const ANIMATION_CHANGE_INTERVAL = 30 * 1000
 
-function getAnimationsForTheme(themeId, colors, seed) {
+function getAnimationsForTheme(themeId, colors, seed, ageProfile) {
+  // For 4-6 months, use only simple shapes on solid background
+  const ageMonths = ageProfile?.ageRange?.[0] || 12
+
+  if (themeId === 'contrast' || (ageMonths >= 4 && ageMonths <= 6)) {
+    // Contrast World theme: Only 1-2 large simple shapes, no background animations
+    return [
+      <ShapeAnimation
+        key={`${themeId}-shapes`}
+        colors={colors}
+        count={ageProfile?.objectCount?.max || 2}
+        seed={seed}
+        ageProfile={ageProfile}
+      />,
+    ]
+  }
+
+  // For older babies, return age-adapted versions of themed animations
   switch (themeId) {
     case 'ocean':
       return [
-        <FishAnimation key={`${themeId}-fish`} count={20} seed={seed} colors={colors} />, // More fish
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={8} seed={seed} />, // Fewer bubbles
-        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
+        <FishAnimation key={`${themeId}-fish`} count={20} seed={seed} colors={colors} ageProfile={ageProfile} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={8} seed={seed} ageProfile={ageProfile} />,
+        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'space':
       return [
-        <StarField key={`${themeId}-stars`} count={35} seed={seed} colors={colors} />,
-        <PlanetAnimation key={`${themeId}-planets`} count={10} seed={seed} />, // More planets
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} />, // Fewer sparkles
+        <StarField key={`${themeId}-stars`} count={35} seed={seed} colors={colors} ageProfile={ageProfile} />,
+        <PlanetAnimation key={`${themeId}-planets`} count={10} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'garden':
       return [
-        <FlowerAnimation key={`${themeId}-flowers`} count={18} seed={seed} />, // More flowers
-        <ButterflyAnimation key={`${themeId}-butterflies`} count={15} seed={seed} />, // More butterflies
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
+        <FlowerAnimation key={`${themeId}-flowers`} count={18} seed={seed} ageProfile={ageProfile} />,
+        <ButterflyAnimation key={`${themeId}-butterflies`} count={15} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'rainbow':
       return [
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={20} seed={seed} />, // More shapes
-        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} />,
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} />, // Fewer sparkles
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={20} seed={seed} ageProfile={ageProfile} />,
+        <ColorWave key={`${themeId}-waves`} colors={colors} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={12} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'animals':
       return [
-        <AnimalAnimation key={`${themeId}-animals`} count={18} seed={seed} />, // More animals
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} />, // Fewer bubbles
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
+        <AnimalAnimation key={`${themeId}-animals`} count={18} seed={seed} ageProfile={ageProfile} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'shapes':
       return [
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={22} seed={seed} />, // More shapes
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={5} seed={seed} />, // Fewer bubbles
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={10} seed={seed} />, // Fewer sparkles
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={22} seed={seed} ageProfile={ageProfile} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={5} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={10} seed={seed} ageProfile={ageProfile} />,
       ]
     case 'clouds':
       return [
-        <CloudAnimation key={`${themeId}-clouds`} count={15} seed={seed} />, // More clouds
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} />, // Fewer bubbles
-        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} />, // Fewer sparkles
+        <CloudAnimation key={`${themeId}-clouds`} count={15} seed={seed} ageProfile={ageProfile} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={6} seed={seed} ageProfile={ageProfile} />,
+        <SparkleAnimation key={`${themeId}-sparkles`} colors={colors} count={8} seed={seed} ageProfile={ageProfile} />,
       ]
     default:
       return [
-        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={12} seed={seed} />,
-        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={15} seed={seed} />,
+        <BubbleAnimation key={`${themeId}-bubbles`} colors={colors} count={12} seed={seed} ageProfile={ageProfile} />,
+        <ShapeAnimation key={`${themeId}-shapes`} colors={colors} count={15} seed={seed} ageProfile={ageProfile} />,
       ]
   }
 }
 
 export default function SensoryCanvas() {
+  const { ageProfile, profile, saveSession } = useBabyProfile()
   const [selectedTheme, setSelectedTheme] = useState(null)
   const [showThemeSelector, setShowThemeSelector] = useState(false)
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
   const [showScoreboard, setShowScoreboard] = useState(false)
   const [showSessionSummary, setShowSessionSummary] = useState(false)
   const [sessionSummary, setSessionSummary] = useState(null)
-  const { theme, colors, sounds, seed, dateString, isOverridden } = useDailyContent(null, selectedTheme)
+  const [showSettings, setShowSettings] = useState(false)
+  const { theme, colors, sounds, seed, dateString, isOverridden } = useDailyContent(ageProfile, selectedTheme)
   const { playRandomSound, initAudio, muted, toggleMute } = useAudio()
   const { isPlaying: isMusicPlaying } = useNurseryRhymes()
   const {
@@ -115,8 +136,8 @@ export default function SensoryCanvas() {
     setAnimationSeed(prev => prev + 1)
   }, [theme.id])
 
-  // Get current animations based on theme
-  const animations = getAnimationsForTheme(theme.id, colors, animationSeed)
+  // Get current animations based on theme and age profile
+  const animations = getAnimationsForTheme(theme.id, colors, animationSeed, ageProfile)
 
   // Session timer
   useEffect(() => {
@@ -133,7 +154,7 @@ export default function SensoryCanvas() {
           setShowSessionSummary(true)
 
           // Log session to analytics
-          logSession({
+          const sessionData = {
             theme: theme.name,
             duration: Math.floor(SESSION_DURATION / 1000),
             touches: summary.totalTouches,
@@ -143,7 +164,17 @@ export default function SensoryCanvas() {
             streaks: summary.bestStreak,
             milestones: summary.milestonesHit,
             completedFull: true,
-          }).catch(error => {
+          }
+
+          // Save to baby profile (Supabase)
+          if (saveSession) {
+            saveSession(sessionData).catch(error => {
+              console.error('Failed to save session to profile:', error)
+            })
+          }
+
+          // Also log to local storage
+          logSession(sessionData).catch(error => {
             console.error('Failed to log session:', error)
           })
 
@@ -227,7 +258,7 @@ export default function SensoryCanvas() {
 
     // Only log if there was actual activity (at least 1 touch)
     if (summary.totalTouches > 0) {
-      logSession({
+      const sessionData = {
         theme: theme.name,
         duration: Math.floor(sessionTime / 1000), // Actual duration played
         touches: summary.totalTouches,
@@ -237,7 +268,17 @@ export default function SensoryCanvas() {
         streaks: summary.bestStreak,
         milestones: summary.milestonesHit,
         completedFull: false, // Manually stopped, not completed
-      }).catch(error => {
+      }
+
+      // Save to baby profile (Supabase)
+      if (saveSession) {
+        saveSession(sessionData).catch(error => {
+          console.error('Failed to save session to profile:', error)
+        })
+      }
+
+      // Also log to local storage
+      logSession(sessionData).catch(error => {
         console.error('Failed to log session:', error)
       })
     }
@@ -316,6 +357,7 @@ export default function SensoryCanvas() {
         themeEmoji={theme.emoji}
         themeId={theme.id}
         onTrackTouch={trackTouch}
+        ageProfile={ageProfile}
       />
 
       {/* Controls */}
@@ -346,6 +388,9 @@ export default function SensoryCanvas() {
 
             {/* Control buttons */}
             <div className="flex justify-center items-center gap-4">
+              {/* Settings button */}
+              <SettingsButton onClick={() => setShowSettings(true)} />
+
               {/* Theme selector button */}
               <button
                 onClick={() => setShowThemeSelector(true)}
@@ -426,6 +471,7 @@ export default function SensoryCanvas() {
         onClose={() => setShowThemeSelector(false)}
         onSelectTheme={setSelectedTheme}
         currentThemeId={theme.id}
+        ageProfile={ageProfile}
       />
 
       {/* Nursery Rhyme Player Modal */}
@@ -447,6 +493,12 @@ export default function SensoryCanvas() {
         showSummary={showSessionSummary}
         sessionSummary={sessionSummary}
         onCloseSummary={() => setShowSessionSummary(false)}
+      />
+
+      {/* Settings Panel Modal */}
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
       />
     </div>
   )

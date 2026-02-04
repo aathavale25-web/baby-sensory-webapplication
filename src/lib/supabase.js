@@ -91,3 +91,137 @@ export async function getSessionsFromSupabase() {
     return []
   }
 }
+
+/**
+ * Baby Profile Functions
+ */
+
+/**
+ * Create a new baby profile
+ * @param {string} name - Baby's name
+ * @param {number} ageMonths - Baby's age in months (4-12)
+ * @returns {object|null} Created profile or null on error
+ */
+export async function createProfile(name, ageMonths) {
+  try {
+    const { data, error } = await supabase
+      .from('baby_profiles')
+      .insert({
+        name,
+        age_months: ageMonths,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating baby profile:', error)
+      return null
+    }
+
+    console.log('✅ Baby profile created:', data)
+    return data
+  } catch (error) {
+    console.error('Failed to create baby profile:', error)
+    return null
+  }
+}
+
+/**
+ * Update an existing baby profile
+ * @param {string} id - Profile ID
+ * @param {object} updates - Fields to update (name, age_months)
+ * @returns {object|null} Updated profile or null on error
+ */
+export async function updateProfile(id, updates) {
+  try {
+    const payload = {
+      ...updates,
+      updated_at: new Date().toISOString(),
+    }
+
+    const { data, error } = await supabase
+      .from('baby_profiles')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating baby profile:', error)
+      return null
+    }
+
+    console.log('✅ Baby profile updated:', data)
+    return data
+  } catch (error) {
+    console.error('Failed to update baby profile:', error)
+    return null
+  }
+}
+
+/**
+ * Get a baby profile by ID
+ * @param {string} id - Profile ID
+ * @returns {object|null} Profile or null if not found
+ */
+export async function getProfile(id) {
+  try {
+    const { data, error } = await supabase
+      .from('baby_profiles')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    if (error) {
+      console.error('Error fetching baby profile:', error)
+      return null
+    }
+
+    return data
+  } catch (error) {
+    console.error('Failed to fetch baby profile:', error)
+    return null
+  }
+}
+
+/**
+ * Log a session for a baby profile
+ * @param {string} babyProfileId - Baby profile ID
+ * @param {object} sessionData - Session data
+ * @returns {object|null} Created session or null on error
+ */
+export async function logSession(babyProfileId, sessionData) {
+  try {
+    const payload = {
+      baby_profile_id: babyProfileId,
+      theme_used: sessionData.theme,
+      duration_seconds: sessionData.duration,
+      touches: sessionData.touches,
+      objects_touched: sessionData.objectCounts || {},
+      colors_touched: sessionData.colorCounts || {},
+    }
+
+    const { data, error } = await supabase
+      .from('sessions')
+      .insert(payload)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error logging session:', error)
+      return null
+    }
+
+    // Also update last_session_date on profile
+    await supabase
+      .from('baby_profiles')
+      .update({ last_session_date: new Date().toISOString() })
+      .eq('id', babyProfileId)
+
+    console.log('✅ Session logged for baby profile:', babyProfileId)
+    return data
+  } catch (error) {
+    console.error('Failed to log session:', error)
+    return null
+  }
+}
