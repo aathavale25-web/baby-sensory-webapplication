@@ -29,10 +29,21 @@ function shuffleWithSeed(array, seed) {
   return shuffled
 }
 
-export function useDailyContent(customDate = null, overrideTheme = null) {
+export function useDailyContent(ageProfile = null, overrideTheme = null, customDate = null) {
   const content = useMemo(() => {
     const date = customDate || new Date()
     const seed = getDateSeed(date)
+
+    // Filter themes based on age profile
+    let availableThemes = dailyThemes
+    if (ageProfile?.enabledThemes) {
+      availableThemes = dailyThemes.filter(t => ageProfile.enabledThemes.includes(t.id))
+    }
+
+    // Ensure we have at least one theme available
+    if (availableThemes.length === 0) {
+      availableThemes = [dailyThemes[0]] // Default to first theme (Contrast World)
+    }
 
     // Use override theme if provided, otherwise use daily theme
     let theme
@@ -40,12 +51,16 @@ export function useDailyContent(customDate = null, overrideTheme = null) {
 
     if (overrideTheme) {
       theme = overrideTheme
-      themeIndex = dailyThemes.findIndex(t => t.id === overrideTheme.id)
+      themeIndex = availableThemes.findIndex(t => t.id === overrideTheme.id)
+      // If override theme is not in available themes, use it anyway (manual override)
+      if (themeIndex === -1) {
+        themeIndex = 0
+      }
     } else {
-      // Get day index (0-6) based on days since epoch modulo 7
+      // Get day index based on days since epoch modulo available themes length
       const daysSinceEpoch = Math.floor(date.getTime() / (1000 * 60 * 60 * 24))
-      themeIndex = daysSinceEpoch % dailyThemes.length
-      theme = dailyThemes[themeIndex]
+      themeIndex = daysSinceEpoch % availableThemes.length
+      theme = availableThemes[themeIndex]
     }
 
     // Shuffle colors and animations for variety within the theme
@@ -66,8 +81,9 @@ export function useDailyContent(customDate = null, overrideTheme = null) {
         day: 'numeric'
       }),
       isOverridden: !!overrideTheme,
+      availableThemes,
     }
-  }, [customDate, overrideTheme])
+  }, [ageProfile, overrideTheme, customDate])
 
   return content
 }

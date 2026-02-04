@@ -1,15 +1,27 @@
 import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 
-export default function ColorWave({ colors, seed = 0 }) {
+export default function ColorWave({ colors, seed = 0, ageProfile = null }) {
   const waves = useMemo(() => {
-    return colors.slice(0, 5).map((color, i) => ({
+    // For 4-6 months, ColorWave is too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    // Filter colors by age profile palette
+    const availableColors = ageProfile?.colorPalette ?
+      colors.filter(color => ageProfile.colorPalette.includes(color.toUpperCase())) :
+      colors
+    const finalColors = availableColors.length > 0 ? availableColors : colors
+
+    return finalColors.slice(0, 5).map((color, i) => ({
       id: i,
       color,
       delay: i * 0.3,
       yOffset: i * 15,
     }))
-  }, [colors])
+  }, [colors, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -40,9 +52,24 @@ export default function ColorWave({ colors, seed = 0 }) {
 }
 
 // Sparkle effect overlay
-export function SparkleAnimation({ colors, count = 20, seed = 0 }) {
+export function SparkleAnimation({ colors, count = 20, seed = 0, ageProfile = null }) {
   const sparkles = useMemo(() => {
     const items = []
+
+    // For 4-6 months, sparkles are too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    const speedMultiplier = ageProfile?.animationSpeed || 1
+
+    // Filter colors by age profile palette
+    const availableColors = ageProfile?.colorPalette ?
+      colors.filter(color => ageProfile.colorPalette.includes(color.toUpperCase())) :
+      colors
+    const finalColors = availableColors.length > 0 ? availableColors : colors
+
     for (let i = 0; i < count; i++) {
       const pseudoRandom = (n) => {
         const x = Math.sin(seed + n) * 10000
@@ -54,13 +81,13 @@ export function SparkleAnimation({ colors, count = 20, seed = 0 }) {
         x: pseudoRandom(i * 4) * 100,
         y: pseudoRandom(i * 4 + 1) * 100,
         size: 10 + pseudoRandom(i * 4 + 2) * 20,
-        color: colors[Math.floor(pseudoRandom(i * 4 + 3) * colors.length)],
-        duration: 1 + pseudoRandom(i * 4 + 4) * 2,
+        color: finalColors[Math.floor(pseudoRandom(i * 4 + 3) * finalColors.length)],
+        duration: (1 + pseudoRandom(i * 4 + 4) * 2) / speedMultiplier,
         delay: pseudoRandom(i * 4 + 5) * 3,
       })
     }
     return items
-  }, [colors, count, seed])
+  }, [colors, count, seed, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -98,9 +125,18 @@ export function SparkleAnimation({ colors, count = 20, seed = 0 }) {
 }
 
 // Cloud animation
-export function CloudAnimation({ count = 6, seed = 0 }) {
+export function CloudAnimation({ count = 6, seed = 0, ageProfile = null }) {
   const clouds = useMemo(() => {
     const items = []
+
+    // For 4-6 months, clouds are too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    const speedMultiplier = ageProfile?.animationSpeed || 1
+
     for (let i = 0; i < count; i++) {
       const pseudoRandom = (n) => {
         const x = Math.sin(seed + n) * 10000
@@ -111,13 +147,13 @@ export function CloudAnimation({ count = 6, seed = 0 }) {
         id: i,
         y: pseudoRandom(i * 4) * 60 + 10,
         size: 80 + pseudoRandom(i * 4 + 1) * 80,
-        duration: 20 + pseudoRandom(i * 4 + 2) * 20,
+        duration: (20 + pseudoRandom(i * 4 + 2) * 20) / speedMultiplier,
         delay: pseudoRandom(i * 4 + 3) * 10,
         opacity: 0.6 + pseudoRandom(i * 4 + 4) * 0.4,
       })
     }
     return items
-  }, [count, seed])
+  }, [count, seed, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -148,10 +184,18 @@ export function CloudAnimation({ count = 6, seed = 0 }) {
 }
 
 // Star field animation
-export function StarField({ count = 30, seed = 0, colors }) {
+export function StarField({ count = 30, seed = 0, colors, ageProfile = null }) {
   const stars = useMemo(() => {
     const items = []
     const starEmojis = ['⭐', '🌟', '✨', '💫']
+
+    // For 4-6 months, star fields are too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    const speedMultiplier = ageProfile?.animationSpeed || 1
 
     for (let i = 0; i < count; i++) {
       const pseudoRandom = (n) => {
@@ -165,12 +209,12 @@ export function StarField({ count = 30, seed = 0, colors }) {
         x: pseudoRandom(i * 5 + 1) * 100,
         y: pseudoRandom(i * 5 + 2) * 100,
         size: 15 + pseudoRandom(i * 5 + 3) * 25,
-        duration: 2 + pseudoRandom(i * 5 + 4) * 3,
+        duration: (2 + pseudoRandom(i * 5 + 4) * 3) / speedMultiplier,
         delay: pseudoRandom(i * 5 + 5) * 2,
       })
     }
     return items
-  }, [count, seed])
+  }, [count, seed, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -203,10 +247,18 @@ export function StarField({ count = 30, seed = 0, colors }) {
 }
 
 // Planet animation for space theme
-export function PlanetAnimation({ count = 5, seed = 0 }) {
+export function PlanetAnimation({ count = 5, seed = 0, ageProfile = null }) {
   const planets = useMemo(() => {
     const items = []
     const planetEmojis = ['🌍', '🌙', '🪐', '☀️', '🌕', '🌑', '🔴', '🟠', '🟡']
+
+    // For 4-6 months, planets are too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    const speedMultiplier = ageProfile?.animationSpeed || 1
 
     for (let i = 0; i < count; i++) {
       const pseudoRandom = (n) => {
@@ -220,12 +272,12 @@ export function PlanetAnimation({ count = 5, seed = 0 }) {
         x: pseudoRandom(i * 5 + 1) * 80 + 10,
         y: pseudoRandom(i * 5 + 2) * 80 + 10,
         size: 40 + pseudoRandom(i * 5 + 3) * 60,
-        duration: 10 + pseudoRandom(i * 5 + 4) * 10,
+        duration: (10 + pseudoRandom(i * 5 + 4) * 10) / speedMultiplier,
         delay: pseudoRandom(i * 5 + 5) * 3,
       })
     }
     return items
-  }, [count, seed])
+  }, [count, seed, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -263,10 +315,18 @@ export function PlanetAnimation({ count = 5, seed = 0 }) {
 }
 
 // Flower animation for garden theme
-export function FlowerAnimation({ count = 10, seed = 0 }) {
+export function FlowerAnimation({ count = 10, seed = 0, ageProfile = null }) {
   const flowers = useMemo(() => {
     const items = []
     const flowerEmojis = ['🌸', '🌺', '🌻', '🌼', '🌷', '🌹', '💐', '🪻', '🪷']
+
+    // For 4-6 months, flowers are too complex - return empty array
+    const ageMonths = ageProfile?.ageRange?.[0] || 12
+    if (ageMonths >= 4 && ageMonths <= 6) {
+      return []
+    }
+
+    const speedMultiplier = ageProfile?.animationSpeed || 1
 
     for (let i = 0; i < count; i++) {
       const pseudoRandom = (n) => {
@@ -280,12 +340,12 @@ export function FlowerAnimation({ count = 10, seed = 0 }) {
         x: pseudoRandom(i * 5 + 1) * 90 + 5,
         y: 50 + pseudoRandom(i * 5 + 2) * 40,
         size: 30 + pseudoRandom(i * 5 + 3) * 40,
-        duration: 3 + pseudoRandom(i * 5 + 4) * 2,
+        duration: (3 + pseudoRandom(i * 5 + 4) * 2 + 4) / speedMultiplier,
         delay: pseudoRandom(i * 5 + 5) * 2,
       })
     }
     return items
-  }, [count, seed])
+  }, [count, seed, ageProfile])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">

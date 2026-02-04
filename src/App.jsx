@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import SensoryCanvas from './components/SensoryCanvas'
+import BabyProfileScreen from './components/BabyProfileScreen'
+import { BabyProfileProvider, useBabyProfile } from './contexts/BabyProfileContext'
 
 function LoadingScreen() {
   return (
@@ -52,7 +54,7 @@ function LoadingScreen() {
   )
 }
 
-function WelcomeScreen({ onStart }) {
+function WelcomeScreen({ onStart, hasProfile, babyName }) {
   return (
     <motion.div
       className="fixed inset-0 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 flex flex-col items-center justify-center p-8"
@@ -124,7 +126,7 @@ function WelcomeScreen({ onStart }) {
           },
         }}
       >
-        ▶️ Start Playing!
+        {hasProfile ? `▶️ Continue (${babyName})` : '▶️ Start Playing!'}
       </motion.button>
 
       <div className="mt-8 text-white/70 text-center text-sm">
@@ -136,9 +138,12 @@ function WelcomeScreen({ onStart }) {
   )
 }
 
-export default function App() {
+function AppContent() {
+  const { profile, createBabyProfile, loading } = useBabyProfile()
   const [isLoading, setIsLoading] = useState(true)
   const [showWelcome, setShowWelcome] = useState(true)
+  const [showProfile, setShowProfile] = useState(false)
+  const [showCanvas, setShowCanvas] = useState(false)
 
   useEffect(() => {
     // Simulate loading time for assets
@@ -151,16 +156,39 @@ export default function App() {
 
   const handleStart = () => {
     setShowWelcome(false)
+    if (profile) {
+      // Already have a profile, go straight to canvas
+      setShowCanvas(true)
+    } else {
+      // Need to create profile first
+      setShowProfile(true)
+    }
+  }
+
+  const handleProfileComplete = async (name, ageMonths) => {
+    await createBabyProfile(name, ageMonths)
+    setShowProfile(false)
+    setShowCanvas(true)
   }
 
   return (
     <div className="w-full h-full">
       <AnimatePresence mode="wait">
-        {isLoading ? (
+        {isLoading || loading ? (
           <LoadingScreen key="loading" />
         ) : showWelcome ? (
-          <WelcomeScreen key="welcome" onStart={handleStart} />
-        ) : (
+          <WelcomeScreen
+            key="welcome"
+            onStart={handleStart}
+            hasProfile={!!profile}
+            babyName={profile?.name}
+          />
+        ) : showProfile ? (
+          <BabyProfileScreen
+            key="profile"
+            onComplete={handleProfileComplete}
+          />
+        ) : showCanvas ? (
           <motion.div
             key="canvas"
             className="w-full h-full"
@@ -170,8 +198,16 @@ export default function App() {
           >
             <SensoryCanvas />
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BabyProfileProvider>
+      <AppContent />
+    </BabyProfileProvider>
   )
 }

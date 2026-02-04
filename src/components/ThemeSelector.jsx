@@ -1,7 +1,16 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { dailyThemes } from '../data/sensoryContent'
+import { useMemo } from 'react'
 
-export default function ThemeSelector({ isOpen, onClose, onSelectTheme, currentThemeId }) {
+export default function ThemeSelector({ isOpen, onClose, onSelectTheme, currentThemeId, ageProfile }) {
+  // Filter themes based on age profile
+  const availableThemes = useMemo(() => {
+    if (!ageProfile?.enabledThemes) {
+      return dailyThemes
+    }
+    return dailyThemes.filter(theme => ageProfile.enabledThemes.includes(theme.id))
+  }, [ageProfile])
+
   if (!isOpen) return null
 
   return (
@@ -36,13 +45,13 @@ export default function ThemeSelector({ isOpen, onClose, onSelectTheme, currentT
                 Choose a Theme
               </h2>
               <p className="text-purple-600 text-sm">
-                Pick your favorite adventure!
+                {ageProfile?.name ? `Perfect for ${ageProfile.name}` : 'Pick your favorite adventure!'}
               </p>
             </div>
 
             {/* Theme Grid */}
             <div className="grid grid-cols-2 gap-4">
-              {dailyThemes.map((theme, index) => {
+              {availableThemes.map((theme, index) => {
                 const isSelected = theme.id === currentThemeId
                 return (
                   <motion.button
@@ -85,13 +94,20 @@ export default function ThemeSelector({ isOpen, onClose, onSelectTheme, currentT
                     {/* Theme name */}
                     <div className={`
                       font-bold text-sm rounded-full px-3 py-1 inline-block
-                      ${theme.id === 'space' || theme.id === 'ocean'
+                      ${theme.id === 'space' || theme.id === 'ocean' || theme.id === 'contrast'
                         ? 'bg-white/90 text-gray-800'
                         : 'bg-black/20 text-white drop-shadow-md'
                       }
                     `}>
                       {theme.name.replace(' Day', '')}
                     </div>
+
+                    {/* Age recommendation badge for Contrast World */}
+                    {theme.id === 'contrast' && (
+                      <div className="mt-1 text-xs bg-blue-500 text-white rounded-full px-2 py-0.5 inline-block">
+                        4-6 months
+                      </div>
+                    )}
 
                     {/* Color preview dots */}
                     <div className="flex justify-center gap-1 mt-2">

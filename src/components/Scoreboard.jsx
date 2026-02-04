@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { OBJECT_TYPE_EMOJIS } from '../hooks/useScoreboard'
+import { useBabyProfile } from '../contexts/BabyProfileContext'
 
 // Confetti particle for celebrations
 function Confetti({ delay }) {
@@ -31,7 +32,7 @@ function Confetti({ delay }) {
 }
 
 // Milestone celebration overlay
-function MilestoneCelebration({ milestone, onComplete }) {
+function MilestoneCelebration({ milestone, onComplete, babyName }) {
   useEffect(() => {
     const timer = setTimeout(onComplete, 3000)
     return () => clearTimeout(timer)
@@ -65,6 +66,11 @@ function MilestoneCelebration({ milestone, onComplete }) {
         >
           🎉
         </motion.div>
+        {babyName && (
+          <div className="text-2xl text-white font-semibold mb-2">
+            Great job, {babyName}!
+          </div>
+        )}
         <motion.div
           className="text-5xl font-bold text-white drop-shadow-lg"
           animate={{ scale: [1, 1.1, 1] }}
@@ -73,7 +79,7 @@ function MilestoneCelebration({ milestone, onComplete }) {
           {milestone}
         </motion.div>
         <div className="text-white text-xl font-semibold mt-2">
-          Touches!
+          Touches! 🌟
         </div>
       </motion.div>
     </motion.div>
@@ -156,7 +162,7 @@ function ObjectBadge({ type, count, isNew }) {
 }
 
 // Session summary component
-function SessionSummary({ summary, onClose }) {
+function SessionSummary({ summary, onClose, babyName }) {
   const { totalTouches, objectCounts, colorCounts, bestStreak, mostTouchedType, mostTouchedColor } = summary
 
   return (
@@ -182,7 +188,9 @@ function SessionSummary({ summary, onClose }) {
           >
             🏆
           </motion.div>
-          <h2 className="text-3xl font-bold text-white">Session Complete!</h2>
+          <h2 className="text-3xl font-bold text-white">
+            {babyName ? `Amazing, ${babyName}!` : 'Session Complete!'}
+          </h2>
         </div>
 
         {/* Total touches */}
@@ -227,7 +235,7 @@ function SessionSummary({ summary, onClose }) {
           onClick={onClose}
           className="w-full bg-white/30 hover:bg-white/40 text-white font-bold py-3 px-6 rounded-full transition-colors text-lg"
         >
-          Great Job! 👏
+          {babyName ? `Great Job, ${babyName}! 👏` : 'Great Job! 👏'}
         </button>
       </motion.div>
     </motion.div>
@@ -291,6 +299,7 @@ export default function Scoreboard({
   sessionSummary,
   onCloseSummary,
 }) {
+  const { profile } = useBabyProfile()
   const [prevTotal, setPrevTotal] = useState(totalTouches)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -312,6 +321,7 @@ export default function Scoreboard({
           <MilestoneCelebration
             milestone={milestone}
             onComplete={() => {}}
+            babyName={profile?.name}
           />
         )}
       </AnimatePresence>
@@ -319,7 +329,11 @@ export default function Scoreboard({
       {/* Session summary */}
       <AnimatePresence>
         {showSummary && sessionSummary && (
-          <SessionSummary summary={sessionSummary} onClose={onCloseSummary} />
+          <SessionSummary
+            summary={sessionSummary}
+            onClose={onCloseSummary}
+            babyName={profile?.name}
+          />
         )}
       </AnimatePresence>
 
@@ -343,7 +357,7 @@ export default function Scoreboard({
               {/* Header */}
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                  <span>📊</span> Scoreboard
+                  <span>📊</span> {profile?.name ? `${profile.name}'s Stats` : 'Scoreboard'}
                 </h2>
                 <button
                   onClick={onClose}
